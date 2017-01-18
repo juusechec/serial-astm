@@ -1,8 +1,10 @@
-// You can edit this code!
-// Click here and start typing.
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/tarm/serial"
+	"log"
+)
 
 const (
 	ENQ = 0x05
@@ -13,28 +15,62 @@ const (
 	CR  = 0x0D
 	LF  = 0x0A
 	EOT = 0x04
+	AAA = 0x41
 )
 
 func main() {
-	var entradaEjemplo = "\xbd\xbd\xbd\xbd\xbd\x05\xbd\xbd\xbd\xbd\xbd\xb2\x3d\xbc\x20\xe2\x8c\x0D\x0A\x98\x98\x98\x98\x98\x98"
+	c := &serial.Config{Name: "COM3", Baud: 9600}
+	s, err := serial.OpenPort(c)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	buf := make([]byte, 40)
+	buffer := make([]byte, 512)
+	buf := make([]byte, 512)
+	tamano := 0
 	bufUlimos2 := [2]uint8{0x00, 0x00}
 	lecturaIniciada := false
-	for i := 0; i < len(entradaEjemplo); i++ {
-		var entrada = entradaEjemplo[i]
-		if entrada == ENQ || lecturaIniciada == true {
-			lecturaIniciada = true
-			bufUlimos2[0] = bufUlimos2[1]
-			bufUlimos2[1] = entrada
-			fmt.Println(bufUlimos2)
-			finDeLinea := [2]uint8{CR, LF}
-			if bufUlimos2 == finDeLinea {
-				fmt.Println("Terminó linea")
-				break
-			}
-			buf[i] = entrada
+	for {
+		n, err := s.Read(buf)
+		if err != nil {
+			log.Fatal(err)
 		}
+		//log.Printf("%q", buf[:n])
+		//fmt.Println(buf[:n])
+		j := tamano
+		for i := 0; i < n; i++ {
+			entrada := buf[i]
+			if lecturaIniciada == true {
+				bufUlimos2[0] = bufUlimos2[1]
+				bufUlimos2[1] = entrada
+				//finDeLinea := [2]uint8{CR, LF}
+				finDeLinea := [2]uint8{AAA, CR}
+				//fmt.Println(bufUlimos2, finDeLinea)
+				if bufUlimos2 == finDeLinea {
+					fmt.Println("Terminó linea")
+					log.Printf("%q", buffer[:tamano])
+					lecturaIniciada = false
+					_, err := s.Write([]byte{ACK})
+					if err != nil {
+						log.Fatal(err)
+					}
+					break
+				}
+				buffer[j] = entrada
+			}
+			j++
+			if entrada == ENQ {
+				fmt.Println("Inició linea")
+				lecturaIniciada = true
+			}
+		}
+
+		if lecturaIniciada == true {
+			tamano = tamano + n
+		}
+
+		//log.Printf("%q", buffer[:tamano])
+		//log.Println("indice", indice)
+		//fmt.Println()
 	}
-	fmt.Println(buf)
 }
