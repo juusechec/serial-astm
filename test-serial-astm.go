@@ -76,7 +76,7 @@ func main() {
 	}
 }
 
-func procesarCadena(cadena []byte){
+func procesarCadena(cadena []byte) {
 	strCadena := string(cadena[:])
 	log.Println(strCadena)
 }
