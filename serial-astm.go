@@ -161,7 +161,7 @@ func searchBetween(text []byte, ini []byte, end []byte) []byte {
 	iniI := bytes.Index(text, ini) + len(ini)
 	endI := bytes.Index(text, end)
 	//log.Println(text, ini, end)
-	if iniI == 0 || endI == -1 {
+	if iniI == len(ini)-1 || endI == -1 {
 		return nil
 	}
 	out := text[iniI:endI]
