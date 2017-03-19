@@ -137,8 +137,8 @@ func waitForValidData(s *serial.Port) (valid bool, eot bool) {
 	fmt.Println("Mensaje Valido: ")
 	printASTMMessage(msg)
 	//panic("EXIT")
-	datamsg := searchBetween(msg, []byte{STX}, []byte{CR})
-	datacs := searchBetween(msg, []byte{ETX}, []byte{CR, LF})
+	datamsg := searchBetween(msg, []byte{STX}, []byte{CR, ETX})
+	datacs := searchBetween(msg, []byte{CR, ETX}, []byte{CR, LF})
 	// Se completa con el mensaje para el checksum
 	data4cs := append(datamsg, []byte{CR, ETX}...)
 	cs := checkSumASCII(checkSum8Mod256(data4cs))
@@ -158,7 +158,7 @@ func waitForValidData(s *serial.Port) (valid bool, eot bool) {
 }
 
 func searchBetween(text []byte, ini []byte, end []byte) []byte {
-	iniI := bytes.Index(text, ini) + 1
+	iniI := bytes.Index(text, ini) + len(ini)
 	endI := bytes.Index(text, end)
 	//log.Println(text, ini, end)
 	if iniI == 0 || endI == -1 {
