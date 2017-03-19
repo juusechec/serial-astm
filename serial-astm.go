@@ -45,17 +45,17 @@ func main() {
 	// break if is EOT
 	for {
 		isEOT := false
-    // Si no es valido retorna un NAK
-    // for init; condition; post { }
-		for v, e := waitForValidData(s); !v; v, e = waitForValidData(s){
+		// Si no es valido retorna un NAK
+		// for init; condition; post { }
+		for v, e := waitForValidData(s); !v; v, e = waitForValidData(s) {
 			isEOT = e
-      // Si no es valido pero es un EOT sale del for
+			// Si no es valido pero es un EOT sale del for
 			if e {
 				break
 			}
 			send(s, []byte{NAK})
 		}
-    // Si es un EOT termina el mensaje
+		// Si es un EOT termina el mensaje
 		if isEOT {
 			break
 		}
@@ -81,7 +81,7 @@ func waitForResp(s *serial.Port, resp []byte) bool {
 		log.Fatal(err)
 	}
 	if reflect.DeepEqual(buf[:n], resp) {
-    log.Println(buf[:n])
+		log.Println(buf[:n])
 		return true
 	} else {
 		return false
@@ -89,25 +89,25 @@ func waitForResp(s *serial.Port, resp []byte) bool {
 }
 
 func waitForValidData(s *serial.Port) (valid bool, eot bool) {
-  log.Println("Llegue")
+	log.Println("Llegue")
 	buf := make([]byte, 128)
 	n, err := s.Read(buf)
 	if err != nil {
 		log.Fatal(err)
 	}
 	msg := buf[:n]
-  log.Println(string(msg))
+	log.Println(string(msg))
 	if bytes.Equal(msg, []byte{EOT}) {
 		return false, true
 	}
 	datamsg := searchBetween(msg, []byte{STX}, []byte{CR})
 	datacs := searchBetween(msg, []byte{ETX}, []byte{CR, LF})
-  // Se completa con el mensaje para el checksum
+	// Se completa con el mensaje para el checksum
 	data4cs := append(datamsg, []byte{CR, ETX}...)
 	cs := checkSumASCII(checkSum8Mod256(data4cs))
-  log.Println(datacs, cs)
-  // Es nulo cuando no encontro el mensaje entre los limites especificados
-  // El mensaje esta corrupto
+	log.Println(datacs, cs)
+	// Es nulo cuando no encontro el mensaje entre los limites especificados
+	// El mensaje esta corrupto
 	if datamsg == nil || datacs == nil {
 		return false, false
 	} else if bytes.Equal(datacs, cs) {
@@ -121,7 +121,7 @@ func waitForValidData(s *serial.Port) (valid bool, eot bool) {
 func searchBetween(text []byte, ini []byte, end []byte) []byte {
 	iniI := bytes.Index(text, ini) + 1
 	endI := bytes.Index(text, end)
-  //log.Println(text, ini, end)
+	//log.Println(text, ini, end)
 	if iniI == 0 || endI == -1 {
 		return nil
 	}

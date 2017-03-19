@@ -37,7 +37,7 @@ func main() {
 	}
 	// Fin
 
-  // Inicio
+	// Inicio
 	msg = []byte("1H|\\^&|||SAT||||||P|E 1394-97|20080731103023")
 	msg = createMessage(msg)
 	send(s, msg)
@@ -354,15 +354,15 @@ func main() {
 	for !waitForResp(s) {
 		send(s, msg)
 	}
-  // Fin
+	// Fin
 
 }
 
-func createMessage(data []byte) []byte {
+func createMessage(frameData []byte) []byte {
 	//<STX><Frame Data><CR><ETX><CHECKSUM 1><CHECKSUM 2><CR><LF>
 	//<Frame Data> = <Frame Number><Data>
 	msg := []byte{}
-	msg = append(msg, data...)
+	msg = append(msg, frameData...)
 	msg = append(msg, []byte{CR, ETX}...)
 	cs := checkSumASCII(checkSum8Mod256(msg))
 	msg = append(msg, []byte{cs[0], cs[1], CR, LF}...)
