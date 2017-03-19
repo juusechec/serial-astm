@@ -1,7 +1,7 @@
 package main
 
 import (
-	//"fmt"
+	"fmt"
 	"bytes"
 	"encoding/hex"
 	"github.com/tarm/serial"
@@ -24,10 +24,12 @@ const (
 )
 
 var (
+	// Buffer de la transmision/trasferencia (entre ENQ y EOT)
 	Transferencia bytes.Buffer
 )
 
 func main() {
+	// Configuración de lectura del serial
 	c := &serial.Config{Name: "COM2", Baud: 9600}
 	s, err := serial.OpenPort(c)
 	if err != nil {
@@ -36,32 +38,31 @@ func main() {
 
 	// for {
 	// Espera por la iniciacion del envio ENQ
+	// Inicio
 	for !waitForResp(s, []byte{ENQ}) {
 		send(s, []byte{NAK})
 	}
 	send(s, []byte{ACK})
+	// Fin
 
 	// Espera por la el envio de datos o por un EOT
 	// break if is EOT
+  loopmsg:
 	for {
-		isEOT := false
 		// Si no es valido retorna un NAK
 		// for init; condition; post { }
 		for v, e := waitForValidData(s); !v; v, e = waitForValidData(s) {
-			isEOT = e
 			// Si no es valido pero es un EOT sale del for
 			if e {
-				break
+				break loopmsg
 			}
+			// Si no es un EOT (fin de la transmisión) se envia un NAK
 			send(s, []byte{NAK})
 		}
-		// Si es un EOT termina el mensaje
-		if isEOT {
-			break
-		}
-		send(s, []byte{ACK})
+		send(s, []byte{ACK}) // ACK of Valid Data
 	}
 	send(s, []byte{ACK}) // ACK of EOT
+  fmt.Println("Transferencia terminada: ")
 	Transferencia.WriteTo(os.Stdout)
 	//}
 }
@@ -81,37 +82,75 @@ func waitForResp(s *serial.Port, resp []byte) bool {
 		log.Fatal(err)
 	}
 	if reflect.DeepEqual(buf[:n], resp) {
-		log.Println(buf[:n])
+		//log.Println(buf[:n])
 		return true
 	} else {
 		return false
 	}
 }
 
-func waitForValidData(s *serial.Port) (valid bool, eot bool) {
-	log.Println("Llegue")
+func read(s *serial.Port) []byte {
 	buf := make([]byte, 128)
 	n, err := s.Read(buf)
 	if err != nil {
 		log.Fatal(err)
 	}
 	msg := buf[:n]
-	log.Println(string(msg))
+	return msg
+}
+
+func waitForValidData(s *serial.Port) (valid bool, eot bool) {
+	//<STX><Frame Data><CR><ETX><CHECKSUM 1><CHECKSUM 2><CR><LF>
+	//<Frame Data> = <Frame Number><Data>
+	// Lee el dato
+	msg := read(s)
+	// Valida si es un EOT
 	if bytes.Equal(msg, []byte{EOT}) {
 		return false, true
 	}
+	// Valida si es un mensaje cortado (puede pasar de a un byte o varios bytes)
+	// Un mensaje cortado comienza con STX pero no termina con LFs
+	if msg[0] == STX {
+		//fmt.Println("msg[0] == STX")
+		// Si el ultimo caracter del slide es LF
+		if msg[len(msg)-1] == LF {
+			//fmt.Println("msg[len(msg)-1] == LF")
+			// Continua, el mensaje es correcto
+		} else {
+			//fmt.Println("msg[len(msg)-1] != LF")
+			// Buffer para la linea (entre STX y LF), make([]T, len, cap)
+			tempBuffer := make([]byte, 0, 256)
+			// Se inicializa el buffer con el contenido de msg
+			tempBuffer = append(tempBuffer, msg...)
+			// Mientras que el mensaje no termine en LF se guarda en tempBuffer
+			for {
+				newmsg := read(s)
+				tempBuffer = append(tempBuffer, newmsg...)
+				if(newmsg[len(newmsg)-1] == LF) {
+					break
+				}
+			}
+			msg = nil // clear
+			msg = tempBuffer
+		}
+	}
+	fmt.Println("Mensaje Valido: ")
+	printASTMMessage(msg)
+	//panic("EXIT")
 	datamsg := searchBetween(msg, []byte{STX}, []byte{CR})
 	datacs := searchBetween(msg, []byte{ETX}, []byte{CR, LF})
 	// Se completa con el mensaje para el checksum
 	data4cs := append(datamsg, []byte{CR, ETX}...)
 	cs := checkSumASCII(checkSum8Mod256(data4cs))
-	log.Println(datacs, cs)
+	//log.Println(datacs, cs)
 	// Es nulo cuando no encontro el mensaje entre los limites especificados
 	// El mensaje esta corrupto
 	if datamsg == nil || datacs == nil {
 		return false, false
 	} else if bytes.Equal(datacs, cs) {
 		Transferencia.Write(datamsg)
+    // Salto de linea CRLF despues de cada mensaje
+    Transferencia.Write([]byte{CR, LF})
 		return true, false
 	} else {
 		return false, false
@@ -145,4 +184,34 @@ func checkSum8Mod256(data []byte) byte {
 		sum += data[i]
 	}
 	return sum
+}
+
+func printASTMMessage(msg []byte) {
+	for i := 0; i < len(msg); i++ {
+		hexString := ""
+		switch {
+		case msg[i] == ENQ:
+			hexString = "ENQ"
+		case msg[i] == ACK:
+			hexString = "ACK"
+		case msg[i] == NAK:
+			hexString = "NAK"
+		case msg[i] == STX:
+			hexString = "STX"
+		case msg[i] == ETX:
+			hexString = "ETX"
+		case msg[i] == CR:
+			hexString = "CR"
+		case msg[i] == LF:
+			hexString = "LF"
+		case msg[i] == EOT:
+			hexString = "EOT"
+		case '0' <= msg[i] && msg[i] <= '9' || 'a' <= msg[i] && msg[i] <= 'z' || 'A' <= msg[i] && msg[i] <= 'Z':
+			hexString = string(msg[i])
+		default:
+			hexString = "0x" + strings.ToUpper(hex.EncodeToString([]byte{msg[i]}))
+		}
+		fmt.Print(hexString + " ")
+	}
+	fmt.Println("")
 }
