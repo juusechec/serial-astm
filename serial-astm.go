@@ -1,9 +1,9 @@
 package main
 
 import (
-	"fmt"
 	"bytes"
 	"encoding/hex"
+	"fmt"
 	"github.com/tarm/serial"
 	"log"
 	"os"
@@ -47,7 +47,7 @@ func main() {
 
 	// Espera por la el envio de datos o por un EOT
 	// break if is EOT
-  loopmsg:
+loopmsg:
 	for {
 		// Si no es valido retorna un NAK
 		// for init; condition; post { }
@@ -62,7 +62,7 @@ func main() {
 		send(s, []byte{ACK}) // ACK of Valid Data
 	}
 	send(s, []byte{ACK}) // ACK of EOT
-  fmt.Println("Transferencia terminada: ")
+	fmt.Println("Transferencia terminada: ")
 	Transferencia.WriteTo(os.Stdout)
 	//}
 }
@@ -109,7 +109,7 @@ func waitForValidData(s *serial.Port) (valid bool, eot bool) {
 		return false, true
 	}
 	// Valida si es un mensaje cortado (puede pasar de a un byte o varios bytes)
-	// Un mensaje cortado comienza con STX pero no termina con LFs
+	// Un mensaje cortado comienza con STX pero no termina con LF
 	if msg[0] == STX {
 		//fmt.Println("msg[0] == STX")
 		// Si el ultimo caracter del slide es LF
@@ -126,7 +126,7 @@ func waitForValidData(s *serial.Port) (valid bool, eot bool) {
 			for {
 				newmsg := read(s)
 				tempBuffer = append(tempBuffer, newmsg...)
-				if(newmsg[len(newmsg)-1] == LF) {
+				if newmsg[len(newmsg)-1] == LF {
 					break
 				}
 			}
@@ -149,8 +149,8 @@ func waitForValidData(s *serial.Port) (valid bool, eot bool) {
 		return false, false
 	} else if bytes.Equal(datacs, cs) {
 		Transferencia.Write(datamsg)
-    // Salto de linea CRLF despues de cada mensaje
-    Transferencia.Write([]byte{CR, LF})
+		// Salto de linea CRLF despues de cada mensaje
+		Transferencia.Write([]byte{CR, LF})
 		return true, false
 	} else {
 		return false, false
@@ -206,7 +206,15 @@ func printASTMMessage(msg []byte) {
 			hexString = "LF"
 		case msg[i] == EOT:
 			hexString = "EOT"
-		case '0' <= msg[i] && msg[i] <= '9' || 'a' <= msg[i] && msg[i] <= 'z' || 'A' <= msg[i] && msg[i] <= 'Z':
+		case ('0' <= msg[i] && msg[i] <= '9') ||
+			('a' <= msg[i] && msg[i] <= 'z') ||
+			('A' <= msg[i] && msg[i] <= 'Z'):
+			hexString = string(msg[i])
+		// Delimitadores
+		case msg[i] == '|' || // De campo
+			msg[i] == '\\' || // De repeticion
+			msg[i] == '^' || // De componente
+			msg[i] == '&': // De escape
 			hexString = string(msg[i])
 		default:
 			hexString = "0x" + strings.ToUpper(hex.EncodeToString([]byte{msg[i]}))
