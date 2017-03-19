@@ -18,26 +18,26 @@ const (
 	CR  = 0x0D
 	LF  = 0x0A
 	EOT = 0x04
-  ETB = 0x17
+	ETB = 0x17
 )
 
 func main() {
-	c := &serial.Config{Name: "COM3", Baud: 9600}
+	c := &serial.Config{Name: "COM1", Baud: 9600}
 	s, err := serial.OpenPort(c)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-  // Inicio
+	// Inicio
 	msg := []byte{ENQ}
 	send(s, msg)
 
 	for !waitForResp(s) {
 		send(s, msg)
 	}
-  // Fin
+	// Fin
 
-	// Inicio
+  // Inicio
 	msg = []byte("1H|\\^&|||SAT||||||P|E 1394-97|20080731103023")
 	msg = createMessage(msg)
 	send(s, msg)
@@ -46,7 +46,6 @@ func main() {
 		send(s, msg)
 	}
 	// Fin
-
 
 	// Inicio
 	msg = []byte("2P|1||Paid127||Name_127^F-Name_127||19800127|M|||||Phy_127||||||||||||Dep_127|")
@@ -67,7 +66,6 @@ func main() {
 		send(s, msg)
 	}
 	// Fin
-
 
 	// Inicio
 	msg = []byte("4C|1|alarm^^^G1|I")
@@ -130,241 +128,239 @@ func main() {
 	// Fin
 
 	// Inicio
-  msg = []byte("2C|3|I|threshold^PLT^69|G")
-  msg = createMessage(msg)
+	msg = []byte("2C|3|I|threshold^PLT^69|G")
+	msg = createMessage(msg)
 	send(s, msg)
 
-  for !waitForResp(s) {
-		send(s, msg)
-	}
-  // Fin
-
-	// Inicio
-  msg = []byte("3R|4|^^^THT^X-PCT|0,175|1||||F||||20080731103023|")
-  msg = createMessage(msg)
-	send(s, msg)
-
-  for !waitForResp(s) {
-		send(s, msg)
-	}
-  // Fin
-
-	// Inicio
-  msg = []byte("4R|5|^^^HCT^4544-3|43,6|1||||F||||20080731103023|")
-  msg = createMessage(msg)
-	send(s, msg)
-
-  for !waitForResp(s) {
-		send(s, msg)
-	}
-  // Fin
-
-	// Inicio
-  msg = []byte("5R|6|^^^HGB^717-9|14,4|1||||F||||20080731103023|")
-  msg = createMessage(msg)
-	send(s, msg)
-
-  for !waitForResp(s) {
-		send(s, msg)
-	}
-  // Fin
-
-	// Inicio
-  msg = []byte("6R|7|^^^MCH^785-6|32,8|1||H||F||||20080731103023|")
-  msg = createMessage(msg)
-	send(s, msg)
-
-  for !waitForResp(s) {
-		send(s, msg)
-	}
-  // Fin
-
-	// Inicio
-  msg = []byte("7R|8|^^^MCHC^786-4|33,0|1||||F||||20080731103023|")
-  msg = createMessage(msg)
-	send(s, msg)
-
-  for !waitForResp(s) {
-		send(s, msg)
-	}
-  // Fin
-
-	// Inicio
-  msg = []byte("0R|9|^^^MCV^787-2|99|1||||F||||20080731103023|")
-  msg = createMessage(msg)
-	send(s, msg)
-
-  for !waitForResp(s) {
-		send(s, msg)
-	}
-  // Fin
-
-	// Inicio
-  msg = []byte("1R|10|^^^RBC^789-9|4,40|1||||F||||20080731103023|")
-  msg = createMessage(msg)
-	send(s, msg)
-
-  for !waitForResp(s) {
-		send(s, msg)
-	}
-  // Fin
-
-	// Inicio
-  msg = []byte("2C|1|I|curve^RBC^0^63^00000000000000000000000001030102010102010201020305060B121A2338464F758996B1BAD8DFCFDCD2C1BEAA9B9F788170575C4B403A36231F1A1F181612|G")
-  msg = createMessage(msg)
-	send(s, msg)
-
-  for !waitForResp(s) {
-		send(s, msg)
-	}
-  // Fin
-
-	// Inicio
-  msg = []byte("3C|2|I|curve^RBC^64^127^130F110D0E0B0F0A090908080A0A0A0C080707070605060704050405030304030203030100010101010100000000010000000000000000000000000000000006|G")
-  msg = createMessage(msg)
-	send(s, msg)
-
-  for !waitForResp(s) {
-		send(s, msg)
-	}
-  // Fin
-
-	// Inicio
-  msg = []byte("4R|11|^^^RDW^788-0|13,5|1||||F||||20080731103023|")
-  msg = createMessage(msg)
-	send(s, msg)
-
-  for !waitForResp(s) {
-		send(s, msg)
-	}
-  // Fin
-
-	// Inicio
-  msg = []byte("5R|12|^^^GRA#^20482-6|8,60|1||||F||||20080731103023|")
-  msg = createMessage(msg)
-	send(s, msg)
-
-  for !waitForResp(s) {
-		send(s, msg)
-	}
-  // Fin
-
-	// Inicio
-  msg = []byte("6R|13|^^^GRA%^14773-6|91,9|1||H||F||||20080731103023|")
-  msg = createMessage(msg)
-	send(s, msg)
-
-  for !waitForResp(s) {
-		send(s, msg)
-	}
-  // Fin
-
-	// Inicio
-  msg = []byte("7R|14|^^^LYM#^731-0|0,40|1||L||F||||20080731103023|")
-  msg = createMessage(msg)
-	send(s, msg)
-
-  for !waitForResp(s) {
-		send(s, msg)
-	}
-  // Fin
-
-	// Inicio
-  msg = []byte("0R|15|^^^LYM%^736-9|5,3|1||L||F||||20080731103023|")
-  msg = createMessage(msg)
-	send(s, msg)
-
-  for !waitForResp(s) {
-		send(s, msg)
-	}
-  // Fin
-
-	// Inicio
-  msg = []byte("1R|16|^^^MON#^742-7|0,20|1||||F||||20080731103023|")
-  msg = createMessage(msg)
-	send(s, msg)
-
-  for !waitForResp(s) {
-		send(s, msg)
-	}
-  // Fin
-
-	// Inicio
-  msg = []byte("2R|17|^^^MON%^744-3|2,8|1||||F||||20080731103023|")
-  msg = createMessage(msg)
-	send(s, msg)
-
-  for !waitForResp(s) {
-		send(s, msg)
-	}
-  // Fin
-
-	// Inicio
-  msg = []byte("3R|18|^^^WBC^804-5|9,2|1||||F||||20080731103023|")
-  msg = createMessage(msg)
-	send(s, msg)
-
-  for !waitForResp(s) {
-		send(s, msg)
-	}
-  // Fin
-
-	// Inicio
-  msg = []byte("4C|1|I|curve^WBC^0^63^000000000000000214324441342B241B16120F0F0F12120B0B09090B0D0F1626323F4B5F768191A6B8BCBCBAB6A89D8A7D64514B443F342D282D3434343B4856|G")
-  msg = createMessage(msg)
-	send(s, msg)
-
-  for !waitForResp(s) {
-		send(s, msg)
-	}
-  // Fin
-
-	// Inicio
-  msg = []byte("5C|2|I|curve^WBC^64^127^667883838F96B1C1D3D5DFD8D8D5DCD8D3C8C1B6BCB3AA9A938D83746856544841342B1F1B191916120D0D090909060404040202000204040402020202020228|G")
-  msg = createMessage(msg)
-	send(s, msg)
-
-  for !waitForResp(s) {
-		send(s, msg)
-	}
-  // Fin
-
-
-	// Inicio
-  msg = []byte("6C|3|I|threshold^WBC^00^00^00^19^22|G")
-  msg = createMessage(msg)
-	send(s, msg)
-
-  for !waitForResp(s) {
-		send(s, msg)
-	}
-  // Fin
-
-
-	// Inicio
-  msg = []byte("7L|1|N")
-  msg = createMessage(msg)
-	send(s, msg)
-
-  for !waitForResp(s) {
-		send(s, msg)
-	}
-  // Fin
-
-
-  // Inicio
-	msg = []byte{EOT}
-	send(s, msg)
-
-  // Fin
 	for !waitForResp(s) {
 		send(s, msg)
 	}
+	// Fin
+
+	// Inicio
+	msg = []byte("3R|4|^^^THT^X-PCT|0,175|1||||F||||20080731103023|")
+	msg = createMessage(msg)
+	send(s, msg)
+
+	for !waitForResp(s) {
+		send(s, msg)
+	}
+	// Fin
+
+	// Inicio
+	msg = []byte("4R|5|^^^HCT^4544-3|43,6|1||||F||||20080731103023|")
+	msg = createMessage(msg)
+	send(s, msg)
+
+	for !waitForResp(s) {
+		send(s, msg)
+	}
+	// Fin
+
+	// Inicio
+	msg = []byte("5R|6|^^^HGB^717-9|14,4|1||||F||||20080731103023|")
+	msg = createMessage(msg)
+	send(s, msg)
+
+	for !waitForResp(s) {
+		send(s, msg)
+	}
+	// Fin
+
+	// Inicio
+	msg = []byte("6R|7|^^^MCH^785-6|32,8|1||H||F||||20080731103023|")
+	msg = createMessage(msg)
+	send(s, msg)
+
+	for !waitForResp(s) {
+		send(s, msg)
+	}
+	// Fin
+
+	// Inicio
+	msg = []byte("7R|8|^^^MCHC^786-4|33,0|1||||F||||20080731103023|")
+	msg = createMessage(msg)
+	send(s, msg)
+
+	for !waitForResp(s) {
+		send(s, msg)
+	}
+	// Fin
+
+	// Inicio
+	msg = []byte("0R|9|^^^MCV^787-2|99|1||||F||||20080731103023|")
+	msg = createMessage(msg)
+	send(s, msg)
+
+	for !waitForResp(s) {
+		send(s, msg)
+	}
+	// Fin
+
+	// Inicio
+	msg = []byte("1R|10|^^^RBC^789-9|4,40|1||||F||||20080731103023|")
+	msg = createMessage(msg)
+	send(s, msg)
+
+	for !waitForResp(s) {
+		send(s, msg)
+	}
+	// Fin
+
+	// Inicio
+	msg = []byte("2C|1|I|curve^RBC^0^63^00000000000000000000000001030102010102010201020305060B121A2338464F758996B1BAD8DFCFDCD2C1BEAA9B9F788170575C4B403A36231F1A1F181612|G")
+	msg = createMessage(msg)
+	send(s, msg)
+
+	for !waitForResp(s) {
+		send(s, msg)
+	}
+	// Fin
+
+	// Inicio
+	msg = []byte("3C|2|I|curve^RBC^64^127^130F110D0E0B0F0A090908080A0A0A0C080707070605060704050405030304030203030100010101010100000000010000000000000000000000000000000006|G")
+	msg = createMessage(msg)
+	send(s, msg)
+
+	for !waitForResp(s) {
+		send(s, msg)
+	}
+	// Fin
+
+	// Inicio
+	msg = []byte("4R|11|^^^RDW^788-0|13,5|1||||F||||20080731103023|")
+	msg = createMessage(msg)
+	send(s, msg)
+
+	for !waitForResp(s) {
+		send(s, msg)
+	}
+	// Fin
+
+	// Inicio
+	msg = []byte("5R|12|^^^GRA#^20482-6|8,60|1||||F||||20080731103023|")
+	msg = createMessage(msg)
+	send(s, msg)
+
+	for !waitForResp(s) {
+		send(s, msg)
+	}
+	// Fin
+
+	// Inicio
+	msg = []byte("6R|13|^^^GRA%^14773-6|91,9|1||H||F||||20080731103023|")
+	msg = createMessage(msg)
+	send(s, msg)
+
+	for !waitForResp(s) {
+		send(s, msg)
+	}
+	// Fin
+
+	// Inicio
+	msg = []byte("7R|14|^^^LYM#^731-0|0,40|1||L||F||||20080731103023|")
+	msg = createMessage(msg)
+	send(s, msg)
+
+	for !waitForResp(s) {
+		send(s, msg)
+	}
+	// Fin
+
+	// Inicio
+	msg = []byte("0R|15|^^^LYM%^736-9|5,3|1||L||F||||20080731103023|")
+	msg = createMessage(msg)
+	send(s, msg)
+
+	for !waitForResp(s) {
+		send(s, msg)
+	}
+	// Fin
+
+	// Inicio
+	msg = []byte("1R|16|^^^MON#^742-7|0,20|1||||F||||20080731103023|")
+	msg = createMessage(msg)
+	send(s, msg)
+
+	for !waitForResp(s) {
+		send(s, msg)
+	}
+	// Fin
+
+	// Inicio
+	msg = []byte("2R|17|^^^MON%^744-3|2,8|1||||F||||20080731103023|")
+	msg = createMessage(msg)
+	send(s, msg)
+
+	for !waitForResp(s) {
+		send(s, msg)
+	}
+	// Fin
+
+	// Inicio
+	msg = []byte("3R|18|^^^WBC^804-5|9,2|1||||F||||20080731103023|")
+	msg = createMessage(msg)
+	send(s, msg)
+
+	for !waitForResp(s) {
+		send(s, msg)
+	}
+	// Fin
+
+	// Inicio
+	msg = []byte("4C|1|I|curve^WBC^0^63^000000000000000214324441342B241B16120F0F0F12120B0B09090B0D0F1626323F4B5F768191A6B8BCBCBAB6A89D8A7D64514B443F342D282D3434343B4856|G")
+	msg = createMessage(msg)
+	send(s, msg)
+
+	for !waitForResp(s) {
+		send(s, msg)
+	}
+	// Fin
+
+	// Inicio
+	msg = []byte("5C|2|I|curve^WBC^64^127^667883838F96B1C1D3D5DFD8D8D5DCD8D3C8C1B6BCB3AA9A938D83746856544841342B1F1B191916120D0D090909060404040202000204040402020202020228|G")
+	msg = createMessage(msg)
+	send(s, msg)
+
+	for !waitForResp(s) {
+		send(s, msg)
+	}
+	// Fin
+
+	// Inicio
+	msg = []byte("6C|3|I|threshold^WBC^00^00^00^19^22|G")
+	msg = createMessage(msg)
+	send(s, msg)
+
+	for !waitForResp(s) {
+		send(s, msg)
+	}
+	// Fin
+
+	// Inicio
+	msg = []byte("7L|1|N")
+	msg = createMessage(msg)
+	send(s, msg)
+
+	for !waitForResp(s) {
+		send(s, msg)
+	}
+	// Fin
+
+	// Inicio
+	msg = []byte{EOT}
+	send(s, msg)
+
+	for !waitForResp(s) {
+		send(s, msg)
+	}
+  // Fin
+
 }
 
 func createMessage(data []byte) []byte {
 	//<STX><Frame Data><CR><ETX><CHECKSUM 1><CHECKSUM 2><CR><LF>
-  //<Frame Data> = <Frame Number><Data>
+	//<Frame Data> = <Frame Number><Data>
 	msg := []byte{}
 	msg = append(msg, data...)
 	msg = append(msg, []byte{CR, ETX}...)
